@@ -15,11 +15,30 @@ java -cp out ExpenseTrackerTests  # run the test suite
 
 You can also run `Main` directly from IntelliJ.
 
+Then open **http://localhost:8080** in your browser for the web page.
+
+## Web page
+
+`WebPage` serves a simple page where you can add, filter and delete expenses and see totals.
+It's built entirely in Java: the server writes the HTML and the browser just displays it.
+It uses **no JavaScript**, only HTML forms:
+
+| Route | What it does |
+|---|---|
+| `GET /` | Shows the page. Optional filters: `?category=&from=&to=` |
+| `POST /add` | Adds an expense from the form, then redirects back to `/` |
+| `POST /delete/{id}` | Deletes an expense, then redirects back to `/` |
+
+After a form is submitted, the server replies with a redirect to `/` (the *Post/Redirect/Get*
+pattern), so refreshing the browser doesn't submit the form twice. Errors are shown in a red
+box at the top of the page. User-typed text is HTML-escaped so it can't inject code into the page.
+
 ## Architecture
 
 | Class | Responsibility |
 |---|---|
 | `Main` | Entry point: wires storage, manager and server together |
+| `WebPage` | The HTML web page (no JavaScript): builds the page and handles its forms |
 | `ExpenseServer` | HTTP layer: routing, request parsing, JSON responses, error → status code mapping |
 | `ExpenseManager` | Business logic: CRUD, filtering, summaries; thread-safe; rolls back if a save fails |
 | `FileStorage` | CSV persistence with quoting and atomic writes (temp file + move) |

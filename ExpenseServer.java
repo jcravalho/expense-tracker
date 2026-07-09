@@ -31,6 +31,8 @@ import java.util.concurrent.Executors;
  *   PUT    /api/expenses/{id}
  *   DELETE /api/expenses/{id}
  *   GET    /api/summary?from=&to=
+ *
+ * Everything outside /api/ is the HTML web page, handled by {@link WebPage}.
  */
 public class ExpenseServer {
     private static final int MAX_BODY_BYTES = 64 * 1024;
@@ -45,6 +47,7 @@ public class ExpenseServer {
         this.executor = Executors.newFixedThreadPool(8);
         server.setExecutor(executor);
         server.createContext("/api/", this::handle);
+        server.createContext("/", new WebPage(manager)::handle);
     }
 
     public void start() {
