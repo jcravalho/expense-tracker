@@ -17,6 +17,38 @@ You can also run `Main` directly from IntelliJ.
 
 Then open **http://localhost:8080** in your browser for the web page.
 
+## Desktop app (JavaFX)
+
+There is also a desktop front-end in `fx/`. It uses the same `ExpenseManager` and CSV file as
+the server, so validation and saving work the same way. The core above still builds without JavaFX.
+
+It needs the [JavaFX SDK 21](https://gluonhq.com/products/javafx/). Unzip it and point
+`--module-path` at its `lib` folder:
+
+```sh
+javac --module-path /path/to/javafx-sdk-21/lib --add-modules javafx.controls,javafx.fxml -d out *.java fx/*.java
+java  --module-path /path/to/javafx-sdk-21/lib --add-modules javafx.controls,javafx.fxml -cp "out;fx" ExpenseApp
+```
+
+On macOS/Linux use `-cp out:fx` instead of `"out;fx"`. You can pass a data file as an argument
+(`ExpenseApp data.csv`). Don't run the desktop app and the server on the same file at the same
+time: each keeps its own copy in memory and the last one to save wins.
+
+In IntelliJ: mark `fx` as a Sources Root, add the SDK's `lib` folder as a library, and add the two
+`--module-path ... --add-modules ...` options to the run configuration's VM options.
+
+### Editing the layout in SceneBuilder
+
+The whole window is defined in `fx/expense-tracker.fxml`. Open that file in
+[SceneBuilder](https://gluonhq.com/products/scene-builder/) to move things around, change text or
+add controls. Wiring a new control to code takes two steps:
+
+1. In SceneBuilder, give it an **fx:id** (Code panel), or for a button an **On Action** like `#handleSomething`.
+2. In `ExpenseController`, add a matching `@FXML private` field or `@FXML private void handleSomething()` method.
+
+The window has a form for adding expenses, a table, a pie chart of spending by category with the
+total underneath, and a filter bar with a delete button.
+
 ## Web page
 
 `WebPage` serves a simple page where you can add, filter and delete expenses and see totals.
@@ -46,6 +78,9 @@ box at the top of the page. User-typed text is HTML-escaped so it can't inject c
 | `Category` | Enum of spending categories |
 | `Summary` | Record holding aggregated totals |
 | `Json` | Minimal JSON parser/writer |
+| `fx/ExpenseApp` | JavaFX entry point: loads the FXML layout and hands it an `ExpenseManager` |
+| `fx/ExpenseController` | JavaFX controller: form, table, filters, chart and total |
+| `fx/expense-tracker.fxml` | The desktop window's layout, editable in SceneBuilder |
 | `ValidationException` / `NotFoundException` | Map to HTTP 400 / 404 |
 
 Requests flow **HTTP → `ExpenseServer` → `ExpenseManager` → `FileStorage`**. Each layer only knows
